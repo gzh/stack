@@ -1217,7 +1217,7 @@ withSingleContext ActionContext {..} ee@ExecuteEnv {..} task@Task {..} mdeps msu
                             let macroDeps = mapMaybe snd matchedDeps
                                 cppMacrosFile = setupDir </> relFileSetupMacrosH
                                 cppArgs = ["-optP-include", "-optP" ++ toFilePath cppMacrosFile]
-                            writeBinaryFileAtomic cppMacrosFile (encodeUtf8Builder (T.pack (C.generatePackageVersionMacros macroDeps)))
+                            writeBinaryFileAtomic cppMacrosFile (encodeUtf8Builder (T.pack (C.generatePackageVersionMacros (packageVersion package) macroDeps)))
                             return (packageDBArgs ++ depsArgs ++ cppArgs)
 
                         -- This branch is taken when

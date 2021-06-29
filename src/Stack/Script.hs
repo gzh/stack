@@ -17,6 +17,7 @@ import qualified Data.Set                   as Set
 import           Distribution.Compiler      (CompilerFlavor (..))
 import           Distribution.ModuleName    (ModuleName)
 import qualified Distribution.PackageDescription as PD
+import qualified Distribution.Types.ModuleReexport as PD
 import qualified Distribution.Types.CondTree as C
 import           Distribution.Types.PackageName (mkPackageName)
 import           Distribution.Types.VersionRange (withinRange)

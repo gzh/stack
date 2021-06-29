@@ -83,6 +83,9 @@ import           RIO.List (unzip)
 import           RIO.PrettyPrint (stylesUpdateL, useColorL)
 import           RIO.Process
 
+import Data.Time.Calendar(Day)
+import qualified Pantry as Pantry
+
 -- | If deprecated path exists, use it and print a warning.
 -- Otherwise, return the new path.
 tryDeprecatedPath
@@ -381,6 +384,7 @@ configFromConfigMonoid
        clConnectionCount
        (fromFirst defaultCasaRepoPrefix configMonoidCasaRepoPrefix)
        defaultCasaMaxPerRequest
+       defaultSnapshotLocation
        (\configPantryConfig -> initUserStorage
          (configStackRoot </> relFileStorage)
          (\configUserStorage -> inner Config {..}))
@@ -911,3 +915,13 @@ defaultConfigYaml =
   \# Rendition) control codes (in decimal). Use \"stack ls stack-colors --basic\"\n\
   \# to see the current sequence.\n\
   \# stack-colors: STYLES\n"
+
+nightlySnapshotLocation :: Day -> RawSnapshotLocation
+nightlySnapshotLocation date = defaultSnapshotLocation (Pantry.Nightly date)
+
+ltsSnapshotLocation
+  :: Int -- ^ major version
+  -> Int -- ^ minor version
+  -> RawSnapshotLocation
+ltsSnapshotLocation x y = defaultSnapshotLocation (Pantry.LTS x y)
+

@@ -152,6 +152,4 @@ hsubparser' commandMetavar m = mkParser d g rdr
 -- | Non-hidden help option.
 helpOption :: Parser (a -> a)
 helpOption =
-    abortOption ShowHelpText $
-    long "help" <>
-    help "Show this help text"
+    abortOption (ShowHelpText Nothing) (long "help" <> help "Show this help text")

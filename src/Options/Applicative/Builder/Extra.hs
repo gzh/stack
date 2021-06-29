@@ -164,7 +164,7 @@ execExtraHelp args helpOpt parser pd =
                                 some (strArgument (metavar "OTHER ARGUMENTS") :: Parser String)))
                         (fullDesc <> progDesc pd))
         return ()
-  where hiddenHelper = abortOption ShowHelpText (long "help" <> hidden <> internal)
+  where hiddenHelper = abortOption (ShowHelpText Nothing) (long "help" <> hidden <> internal)
 
 -- | 'option', specialized to 'Text'.
 textOption :: Mod OptionFields Text -> Parser Text

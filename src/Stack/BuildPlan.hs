@@ -47,6 +47,8 @@ import           Stack.Types.Config
 import           Stack.Types.Compiler
 import           Stack.Types.Resolver
 
+import qualified Pantry as P
+
 data BuildPlanException
     = UnknownPackages
         (Path Abs File) -- stack.yaml file
@@ -225,7 +227,7 @@ selectPackageBuildPlan platform compiler pool gpd =
     flagCombinations :: NonEmpty [(FlagName, Bool)]
     flagCombinations = mapM getOptions (genPackageFlags gpd)
       where
-        getOptions :: C.Flag -> NonEmpty (FlagName, Bool)
+        getOptions :: C.PackageFlag -> NonEmpty (FlagName, Bool)
         getOptions f
             | flagManual f = (fname, flagDefault f) :| []
             | flagDefault f = (fname, True) :| [(fname, False)]
@@ -387,8 +389,9 @@ selectBestSnapshot pkgDirs snaps = do
     logInfo $ "Selecting the best among "
                <> displayShow (NonEmpty.length snaps)
                <> " snapshots...\n"
-    let resolverStackage (LTS x y) = ltsSnapshotLocation x y
-        resolverStackage (Nightly d) = nightlySnapshotLocation d
+    let --resolverStackage = defaultSnapshotLocation
+        resolverStackage (LTS x y) = defaultSnapshotLocation (P.LTS x y)
+        resolverStackage (Nightly d) = defaultSnapshotLocation (P.Nightly d)
     F.foldr1 go (NonEmpty.map (getResult . resolverStackage) snaps)
     where
         go mold mnew = do

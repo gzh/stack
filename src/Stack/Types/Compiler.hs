@@ -29,6 +29,7 @@ import qualified Data.Text as T
 import           Stack.Prelude
 import           Stack.Types.Version
 import           Distribution.Version (mkVersion)
+import qualified Pantry(PantryException(..))
 
 -- | Variety of compiler to use.
 data WhichCompiler
@@ -65,7 +66,7 @@ instance PersistFieldSql ActualCompiler where
 
 data CompilerException
   = GhcjsNotSupported
-  | PantryException PantryException
+  | PantryException Pantry.PantryException
 
 instance Show CompilerException where
     show GhcjsNotSupported = "GHCJS is no longer supported by Stack"

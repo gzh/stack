@@ -33,6 +33,7 @@ import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import qualified Data.Text as T
 import           Distribution.Compiler
+import           Distribution.CabalSpecVersion
 import           Distribution.ModuleName (ModuleName)
 import qualified Distribution.ModuleName as Cabal
 import qualified Distribution.Package as D
@@ -127,7 +128,7 @@ resolvePackage packageConfig gpkg =
         (resolvePackageDescription packageConfig gpkg)
 
 packageFromPackageDescription :: PackageConfig
-                              -> [D.Flag]
+                              -> [D.PackageFlag]
                               -> PackageDescriptionPair
                               -> Package
 packageFromPackageDescription packageConfig pkgFlags (PackageDescriptionPair pkgNoMod pkg) =
@@ -189,7 +190,7 @@ packageFromPackageDescription packageConfig pkgFlags (PackageDescriptionPair pkg
           (library pkg)
     , packageBuildType = buildType pkg
     , packageSetupDeps = msetupDeps
-    , packageCabalSpec = either orLaterVersion id $ specVersionRaw pkg
+    , packageCabalSpec = either orLaterVersion id $ Left $ mkVersion $ cabalSpecToVersionDigits $ specVersion pkg
     }
   where
     extraLibNames = S.union subLibNames foreignLibNames
@@ -694,7 +695,7 @@ packageDescModulesAndFiles pkg = do
 
 -- | Resolve globbing of files (e.g. data files) to absolute paths.
 resolveGlobFiles
-  :: Version -- ^ cabal file version
+  :: CabalSpecVersion -- ^ cabal file version
   -> [String]
   -> RIO Ctx (Set (Path Abs File))
 resolveGlobFiles cabalFileVersion =
@@ -852,7 +853,7 @@ data PackageDescriptionPair = PackageDescriptionPair
 resolvePackageDescription :: PackageConfig
                           -> GenericPackageDescription
                           -> PackageDescriptionPair
-resolvePackageDescription packageConfig (GenericPackageDescription desc defaultFlags mlib subLibs foreignLibs' exes tests benches) =
+resolvePackageDescription packageConfig (GenericPackageDescription desc _ defaultFlags mlib subLibs foreignLibs' exes tests benches) =
     PackageDescriptionPair
       { pdpOrigBuildable = go False
       , pdpModifiedBuildable = go True
@@ -925,9 +926,9 @@ resolvePackageDescription packageConfig (GenericPackageDescription desc defaultF
 -- | Make a map from a list of flag specifications.
 --
 -- What is @flagManual@ for?
-flagMap :: [Flag] -> Map FlagName Bool
+flagMap :: [PackageFlag] -> Map FlagName Bool
 flagMap = M.fromList . map pair
-  where pair :: Flag -> (FlagName, Bool)
+  where pair :: PackageFlag -> (FlagName, Bool)
         pair = flagName &&& flagDefault
 
 data ResolveConditions = ResolveConditions
@@ -976,7 +977,7 @@ resolveConditions rc addDeps (CondNode lib deps cs) = basic <> children
                   case v of
                     OS os -> os == rcOS rc
                     Arch arch -> arch == rcArch rc
-                    Flag flag ->
+                    PackageFlag flag ->
                       fromMaybe False $ M.lookup flag (rcFlags rc)
                       -- NOTE:  ^^^^^ This should never happen, as all flags
                       -- which are used must be declared. Defaulting to

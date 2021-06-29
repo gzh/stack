@@ -29,7 +29,8 @@ import           RIO.File             as X hiding (writeBinaryFileAtomic)
 import           Data.Conduit         as X (ConduitM, runConduit, (.|))
 import           Path                 as X (Abs, Dir, File, Path, Rel,
                                             toFilePath)
-import           Pantry               as X hiding (Package (..), loadSnapshot)
+import           Pantry               as X hiding (Package (..), loadSnapshot, parseSnapName, 
+                                                   SnapName(..), PantryException(..))
 
 import           Data.Monoid          as X (First (..), Any (..), Sum (..), Endo (..))
 
